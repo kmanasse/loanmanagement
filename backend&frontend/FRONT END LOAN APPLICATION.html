@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>INSTACASH Ltd - Loan Application</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: url('background-photo.png') no-repeat center center fixed;
+      background-size: cover;
+      line-height: 1.6;
+      color: #333;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: -1;
+    }
+
+    header {
+      background-color: rgba(44, 62, 80, 0.9);
+      color: white;
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .logo {
+      margin-bottom: 1.5rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    .logo img {
+      max-width: 250px;
+      height: auto;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 2rem auto;
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 1rem;
+      background-color: rgba(255, 255, 255, 0.95);
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #3498db;
+      box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+    }
+
+    .btn {
+      padding: 1rem;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn:hover {
+      background-color: #2980b9;
+    }
+
+    .conditional-field {
+      display: none;
+      margin-top: 1rem;
+    }
+
+    .loan-limit-info,
+    .calculator-result {
+      background-color: #f0f0f0;
+      padding: 1rem;
+      border-radius: 4px;
+      margin-top: 1rem;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .calculator-group h3 {
+      margin-top: 2rem;
+      color: #2c3e50;
+    }
+
+    .calculator-result p {
+      font-weight: bold;
+      margin: 0.3rem 0;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 1rem;
+      justify-content: space-between;
+      margin-top: 1.5rem;
+    }
+
+    .button-row .btn {
+      flex: 1;
+    }
+
+    @media (max-width: 600px) {
+      .button-row {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <img src="/api/placeholder/250/100" alt="INSTACASH Ltd Logo" />
+    </div>
+    <h1>Loan Application Form</h1>
+  </header>
+
+  <div class="container">
+    <form id="loanApplicationForm">
+      <div class="form-group">
+        <label for="fullName">Full Name</label>
+        <input type="text" id="fullName" name="fullName" required />
+      </div>
+
+      <div class="form-group">
+        <label for="age">Age</label>
+        <input type="number" id="age" name="age" min="18" max="100" required />
+      </div>
+
+      <div class="form-group">
+        <label for="gender">Gender</label>
+        <select id="gender" name="gender" required>
+          <option value="">Select Gender</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="maritalStatus">Marital Status</label>
+        <select id="maritalStatus" name="maritalStatus" required>
+          <option value="">Select Marital Status</option>
+          <option value="single">Single</option>
+          <option value="married">Married</option>
+          <option value="divorced">Divorced</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="email" required />
+      </div>
+
+      <div class="form-group">
+        <label for="phoneNumber">Phone Number</label>
+        <input type="tel" id="phoneNumber" name="phoneNumber" required />
+      </div>
+
+      <div class="form-group">
+        <label for="idUpload">Upload National ID</label>
+        <input type="file" id="idUpload" name="idUpload" accept=".pdf,.jpg,.jpeg,.png" required />
+      </div>
+
+      <div class="form-group">
+        <label for="collateralType">Collateral Type</label>
+        <select id="collateralType" name="collateralType" required onchange="handleCollateralChange()">
+          <option value="">Select Collateral</option>
+          <option value="cheque">Cheque</option>
+          <option value="land">Land</option>
+          <option value="house">House</option>
+          <option value="car">Car</option>
+        </select>
+      </div>
+
+      <div id="forcedSaleValueFields" class="conditional-field">
+        <div class="form-group">
+          <label for="forcedSaleValue">Estimated Forced Sale Value (RWF)</label>
+          <input type="number" id="forcedSaleValue" name="forcedSaleValue" min="0" step="10000" onchange="calculateLoanLimit()" />
+        </div>
+        <div class="form-group">
+          <label for="valuationReport">Upload Valuation Report</label>
+          <input type="file" id="valuationReport" name="valuationReport" accept=".pdf,.jpg,.jpeg,.png" />
+        </div>
+      </div>
+
+      <div id="chequeFields" class="conditional-field">
+        <div class="form-group">
+          <label for="monthlyIncome">Monthly Income (RWF)</label>
+          <input type="number" id="monthlyIncome" name="monthlyIncome" min="0" step="1000" onchange="calculateLoanLimit()" />
+        </div>
+        <div class="form-group">
+          <label for="bankStatements">Upload 3 Months Bank Statements</label>
+          <input type="file" id="bankStatements" name="bankStatements" accept=".pdf,.jpg,.jpeg,.png" multiple />
+        </div>
+      </div>
+
+      <div id="loanLimitInfo" class="loan-limit-info" style="display: none;">
+        Maximum Loan Limit: <span id="loanLimitDisplay">0</span> RWF
+      </div>
+
+      <div class="form-group">
+        <label for="loanAmount">Loan Amount (RWF)</label>
+        <input type="number" id="loanAmount" name="loanAmount" min="10000" step="1000" required onchange="validateLoanAmount()" />
+      </div>
+
+      <div class="form-group">
+        <label for="loanPurpose">Loan Purpose</label>
+        <input type="text" id="loanPurpose" name="loanPurpose" required />
+      </div>
+
+      <div class="calculator-group">
+        <h3>Loan Repayment Estimator</h3>
+
+        <div class="form-group">
+          <label for="loanTenure">Loan Tenure (months, max 12)</label>
+          <input type="number" id="loanTenure" name="loanTenure" min="1" max="12" required />
+        </div>
+
+        <div class="form-group">
+          <label for="monthlyInterest">Monthly Interest Rate (%) (4.5 - 10)</label>
+          <input type="number" id="monthlyInterest" name="monthlyInterest" min="4.5" max="10" step="0.1" required />
+        </div>
+
+        <div class="calculator-result" id="loanCalculationResult" style="display: none;">
+          <p>Monthly Repayment: <span id="monthlyPayment">RWF 0</span></p>
+          <p>Total Repayment: <span id="totalPayment">RWF 0</span></p>
+          <p>Total Interest Paid: <span id="interestPaid">RWF 0</span></p>
+        </div>
+      </div>
+
+      <div class="button-row">
+        <button type="button" class="btn" onclick="calculateLoan()">Calculate Monthly Payment</button>
+        <button type="submit" class="btn" href="submit loan.html">Submit Loan Application</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    function handleCollateralChange() {
+      const collateralType = document.getElementById('collateralType').value;
+      const forcedSaleValueFields = document.getElementById('forcedSaleValueFields');
+      const chequeFields = document.getElementById('chequeFields');
+      const loanLimitInfo = document.getElementById('loanLimitInfo');
+
+      forcedSaleValueFields.style.display = 'none';
+      chequeFields.style.display = 'none';
+      loanLimitInfo.style.display = 'none';
+
+      if (['land', 'house', 'car'].includes(collateralType)) {
+        forcedSaleValueFields.style.display = 'block';
+      }
+
+      if (collateralType === 'cheque') {
+        chequeFields.style.display = 'block';
+      }
+    }
+
+    function calculateLoanLimit() {
+      const collateralType = document.getElementById('collateralType').value;
+      const forcedSaleValue = parseFloat(document.getElementById('forcedSaleValue')?.value || 0);
+      const monthlyIncome = parseFloat(document.getElementById('monthlyIncome')?.value || 0);
+      const loanLimitDisplay = document.getElementById('loanLimitDisplay');
+      const loanLimitInfo = document.getElementById('loanLimitInfo');
+      const loanAmountInput = document.getElementById('loanAmount');
+
+      let loanLimit = 0;
+
+      switch (collateralType) {
+        case 'land':
+        case 'house':
+          loanLimit = forcedSaleValue * 0.5;
+          break;
+        case 'car':
+          loanLimit = forcedSaleValue * 0.25;
+          break;
+        case 'cheque':
+          loanLimit = monthlyIncome * 0.5;
+          break;
+      }
+
+      loanLimit = Math.floor(loanLimit / 1000) * 1000;
+
+      if (loanLimit > 0) {
+        loanLimitDisplay.textContent = loanLimit.toLocaleString();
+        loanLimitInfo.style.display = 'block';
+        loanAmountInput.max = loanLimit;
+      } else {
+        loanLimitInfo.style.display = 'none';
+      }
+    }
+
+    function validateLoanAmount() {
+      const loanAmount = parseFloat(document.getElementById('loanAmount').value);
+      const loanLimit = parseFloat(document.getElementById('loanLimitDisplay').textContent.replace(/,/g, ''));
+
+      if (loanAmount > loanLimit) {
+        alert(`Loan amount cannot exceed the maximum limit of ${loanLimit.toLocaleString()} RWF`);
+        document.getElementById('loanAmount').value = loanLimit;
+      }
+    }
+
+    function calculateLoan() {
+      const amount = parseFloat(document.getElementById('loanAmount').value);
+      const months = parseInt(document.getElementById('loanTenure').value);
+      const rate = parseFloat(document.getElementById('monthlyInterest').value) / 100;
+
+      if (!amount || !months || !rate || months > 12 || rate < 0.045 || rate > 0.10) {
+        alert('Please ensure all fields are correctly filled. Loan tenure max is 12 months, interest must be 4.5–10%.');
+        return;
+      }
+
+      const monthlyInterest = amount * rate;
+      const monthlyPayment = (amount / months) + monthlyInterest;
+      const totalPayment = monthlyPayment * months;
+      const totalInterest = monthlyInterest * months;
+
+      document.getElementById('monthlyPayment').textContent = `RWF ${monthlyPayment.toLocaleString(undefined, {maximumFractionDigits: 2})}`;
+      document.getElementById('totalPayment').textContent = `RWF ${totalPayment.toLocaleString(undefined, {maximumFractionDigits: 2})}`;
+      document.getElementById('interestPaid').textContent = `RWF ${totalInterest.toLocaleString(undefined, {maximumFractionDigits: 2})}`;
+      document.getElementById('loanCalculationResult').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
